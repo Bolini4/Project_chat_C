@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
         serv_addr.sin_port = htons(portno);
     if(connect(sockfd,(struct sockaddr *) &serv_addr, sizeof (serv_addr))<0)
         error("Connection Failed");
-        
 
-        
+
+
         while(1)
         {
             bzero(buffer, 255);
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
             if (n< 0)
                     error ("Error on reading");
             printf("Server : %s" , buffer);
-            
+
             int i = strncmp("Bye", buffer, 3);
             if (i == 0)
             break;
