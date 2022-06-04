@@ -7,17 +7,14 @@
  argv[0] filename
  argv[1] server_ipadress
  argv[2] portno
-
  ---------------------------------------------------------------------
  #include <netinet/in.h>
-
 struct sockaddr_in {
     short            sin_family;   // e.g. AF_INET
     unsigned short   sin_port;     // e.g. htons(portno) ATTENTION PORTNO Doit avoit atoi
     struct in_addr   sin_addr;     // see struct in_addr, below
     char             sin_zero[8];  // zero this if you want to
 };
-
 struct in_addr {
     unsigned long s_addr;  // load with inet_aton()
 };
@@ -30,6 +27,13 @@ struct in_addr {
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <pthread.h> //inclusion threads
+
+#define MAX_CLIENT 5
+
+void *create_thread(){
+
+}
 
 void error(const char *msg)
 {
@@ -55,9 +59,9 @@ int main(int argc, char *argv[])
     // Si socket renvoie <0 c'est que y'a erreur dans la création du socket, sinon renvoie un descrupteur.
     if(sockfd < 0)
     {
-        error("Error Openong Socket.");
+        error("Error Opening Socket.");
     }
-    bzero((char *) &serv_addr, sizeof(serv_addr));
+    bzero((char *) &serv_addr, sizeof(serv_addr)); //met à 0 srv_addr
     portno = atoi(argv[1]); //il faut appliquer atoi au num de port pour que la machine comprenne.
 
     serv_addr.sin_family = AF_INET;
@@ -66,10 +70,12 @@ int main(int argc, char *argv[])
 
     if(bind(sockfd , (struct sockaddr *) &serv_addr, sizeof(serv_addr))<0)
         error("Binding Failed.");
-    listen(sockfd, 5);
+    listen(sockfd, MAX_CLIENT); //on dit que sockfd est un socket d'écoute avec 5 connexions simultanées
     clilen = sizeof(cli_addr);
 
     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+    // int accept(int sockfd, struct sockaddr *adresse, socklen_t *longueur);
+    // renvoie un token identifiant le nouveau socket
 
     if(newsockfd < 0)
         error ("Error on Accept");
@@ -98,5 +104,3 @@ int main(int argc, char *argv[])
     close(sockfd);
     return 0;
 }
-
-
