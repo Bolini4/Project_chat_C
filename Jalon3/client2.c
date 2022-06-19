@@ -1,4 +1,4 @@
-
+#include "msg_struct.h"
 
 #include <netdb.h>
 #include <stdio.h>
@@ -16,7 +16,9 @@ int main(int argc, char *argv[]) {
     int server_port, socket_fd, n;
     struct hostent *server_host;
     struct sockaddr_in server_address;
+    struct message *messages;
 
+    messages = malloc(sizeof(messages));
     /* infos serveur. */
     if (argc > 1) {
         strncpy(server_name, argv[1], SERVER_NAME_LEN_MAX);
@@ -52,12 +54,13 @@ int main(int argc, char *argv[]) {
 		perror("connect");
         exit(1);
 	}
+
 	
 	    while(1)
     {
         bzero(buffer, 255);
         fgets(buffer, 255, stdin); //écrit dans le buffer via stdin (entrée au clavier)
-        n = write (socket_fd, buffer, strlen(buffer));
+        n = write (socket_fd,buffer, strlen(buffer));
         if (strcmp(buffer, "/quit\n") ==0 ){
             printf("Connection terminated.\n");
             break;

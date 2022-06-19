@@ -1,3 +1,4 @@
+#include "msg_struct.h"
 
 #include <netinet/in.h>
 #include <pthread.h>
@@ -14,6 +15,8 @@
 typedef struct pthread_arg_t {
     int new_socket_fd;
     struct sockaddr_in client_address;
+    struct message message;
+    struct message *pmessage;
    //l 116 139. */
 } pthread_arg_t;
 
@@ -105,9 +108,7 @@ int main(int argc, char *argv[]) {
 
         /* Initialise pthread argument. */
         pthread_arg->new_socket_fd = new_socket_fd;
-        /* TODO: Initialise arguments passed to threads here. See lines 22 and
-         * 139.
-         */
+
 
         /* Create thread to serve connection to client. */
         if (pthread_create(&pthread, &pthread_attr, pthread_routine, (void *)pthread_arg) != 0) {
@@ -117,10 +118,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /* close(socket_fd);
-     * TODO: If you really want to close the socket, you would do it in
-     * signal_handler(), meaning socket_fd would need to be a global variable.
-     */
     return 0;
 }
 
@@ -129,33 +126,55 @@ void *pthread_routine(void *arg) {
     int new_socket_fd = pthread_arg->new_socket_fd;
 	int n;
     struct sockaddr_in client_address = pthread_arg->client_address;
+    struct message message;
 	char buffer[255];
+    char nick[] = { '/', 'n', 'i', 'c', 'k' };
+    const char s[2] = " ";
+    char *token;
     /*l22 116 */
 
     free(arg);
 	    while (1)
     {
         bzero(buffer, 255);
-        n=read(new_socket_fd, buffer, 255);
-        if (n < 0)
-            perror("Error on reading.");
+        printf("Clear BUffer\n");
+        n=read(new_socket_fd, buffer, strlen(buffer));
+        printf("i have read\n");
 
-        printf("Client : %s\n", buffer);
-		 n = write(new_socket_fd, buffer, strlen(buffer));
-        //bzero(buffer, 255);
-        // fgets(buffer, 255, stdin);
 
-       
-        if (n < 0)
-            perror ("Error on writing");
+/*on vérifie si on a entré une commande. */
+        if(strcmp("/quit",message.infos)==0)
+            printf("ça à marché");
 
-        if (strcmp(buffer, "/quit\n") ==0 ){
+        if (buffer[0]=='/'){
+            printf("je suis rentré dans le /");
+
+            if (buffer[1] =='q' ){
             printf("Connection terminated by user\n");
             break;
+
+           }
+            if (buffer[1] =='n' ){
+            printf("Je suis dans le /nick \n");
+            n = write(new_socket_fd, buffer, strlen(buffer));
+           // token = strtok(buffer,s);
+           // printf("%s",token);
+
+            }
+            printf("je suis dans aucun if ?");
         }
+            printf("sorti des if /\n");
+
+        if(buffer[0] != '/'){
+            printf("Client : %s\n", buffer);
+            n = write(new_socket_fd, buffer, strlen(buffer));
+        }
+        printf("je suis sorti du else ?\n");
     }
 
+
     close(new_socket_fd);
+        printf("j'ai close socke ?");
     return NULL;
 }
 
